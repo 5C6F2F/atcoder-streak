@@ -1,0 +1,5 @@
+user_name = ""
+address = "https://kenkoooo.com/atcoder"
+user_id_selector = "#user_id"
+user_button_selector = "#root > div > div.sticky-top > nav.border-bottom.navbar.navbar-expand-md.navbar-light.bg-light > ul > li:nth-child(2) > div > div:nth-child(1) > div > a:nth-child(3)"
+last_ac_selector = "#root > div > div.my-5.container > div > div.my-3.row > div:nth-child(7) > h6.text-muted"
