@@ -17,7 +17,7 @@ struct LoadLastAC {
 
 impl LoadLastAC {
     fn new() -> Self {
-        let config_str = std::fs::read_to_string("config.toml").expect("Filed to read config.toml");
+        let config_str = std::fs::read_to_string("config.toml").expect("Failed to read config.toml");
         let load_info: LoadLastAC = toml::from_str(&config_str).expect("Failed to parse config.toml");
 
         if load_info.user_name.is_empty() {
