@@ -4,7 +4,18 @@ use serde::Deserialize;
 use std::{error::Error, fs};
 
 fn main() {
-    let _last_ac = LoadLastAC::new().load_last_ac().expect("Failed to load lastAC");
+    let config = Config::new();
+    let load_last_ac = config.load_last_ac;
+    let compare_dates = config.compare_dates;
+    let line_notifier = config.line_notifier;
+
+    let last_ac = load_last_ac.load_last_ac().expect("Failed to load lastAC");
+
+    if compare_dates.is_streak_updated(last_ac) {
+        return;
+    }
+
+    line_notifier.send();
 }
 
 #[derive(Debug, Deserialize)]
