@@ -14,3 +14,18 @@ token = "A2cwIAR1OBKpNHmTZe2ww993jWj3NqnMrSHvZ5tZZVA"
 message = """
 AtCoder Streakが更新されていません
 早く問題を解いてください"""
+
+[registerer]
+task_name = "AtCoderStreak"
+task_description = "AtCoderのStreakが更新されていない場合、定期的にLINEで通知します"
+notify_times = [
+    "18:00",
+    "21:00",
+    "22:00",
+    "23:00",
+    "23:15",
+    "23:30",
+    "23:45",
+    "23:50",
+    "23:55",
+]
