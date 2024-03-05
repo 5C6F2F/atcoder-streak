@@ -3,7 +3,19 @@ use serde::Deserialize;
 use std::fs;
 
 fn main() {
-    println!("Hello, world!");
+    let config = Config::new();
+    let registerer = &config.registerer;
+    let current_exe = std::env::current_exe().expect("Failed to get current exe path");
+
+    std::process::Command::new("pwsh")
+        .arg("-Command")
+        .arg("./register.ps1")
+        .arg(&registerer.task_name)
+        .arg(current_exe)
+        .arg(&registerer.task_description)
+        .arg(registerer.times_to_string())
+        .output()
+        .expect("Failed to register command");
 }
 
 #[derive(Debug, Deserialize)]
@@ -26,6 +38,18 @@ struct Registerer {
     task_description: String,
     #[serde(deserialize_with = "deserialize_times")]
     notify_times: Vec<NaiveTime>,
+}
+
+impl Registerer {
+    fn times_to_string(&self) -> String {
+        let mut result = String::new();
+        for i in &self.notify_times {
+            result.push_str(&i.to_string());
+            result.push(' ');
+        }
+        result.pop();
+        result
+    }
 }
 
 fn deserialize_times<'de, D>(deserializer: D) -> Result<Vec<NaiveTime>, D::Error>
