@@ -5,6 +5,10 @@ use std::{error::Error, fs};
 
 #[tokio::main]
 async fn main() {
+    let mut current_exe = std::env::current_exe().expect("Failed to get current exe path");
+    current_exe.pop();
+    std::env::set_current_dir(current_exe).expect("Failed to set directory");
+
     let config = Config::new();
     let load_last_ac = config.load_last_ac;
     let compare_dates = config.compare_dates;
