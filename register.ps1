@@ -16,8 +16,9 @@ foreach ($time in $args) {
     $trigger = New-ScheduledTaskTrigger -Daily -At $time
     $triggers += $trigger
 }
+$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount
 $settings = New-ScheduledTaskSettingsSet
-$task = New-ScheduledTask -Action $action -Trigger $triggers -Settings $settings -Description $description
+$task = New-ScheduledTask -Action $action -Principal $principal -Trigger $triggers -Settings $settings -Description $description
 Register-ScheduledTask -TaskName $taskname -InputObject $task -Force
 
 Write-Host
