@@ -3,7 +3,8 @@ use line_notify::LineNotify;
 use serde::Deserialize;
 use std::{error::Error, fs};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config = Config::new();
     let load_last_ac = config.load_last_ac;
     let compare_dates = config.compare_dates;
@@ -11,11 +12,9 @@ fn main() {
 
     let last_ac = load_last_ac.load_last_ac().expect("Failed to load lastAC");
 
-    if compare_dates.is_streak_updated(last_ac) {
-        return;
+    if !compare_dates.is_streak_updated(last_ac) {
+        line_notifier.send().await;
     }
-
-    line_notifier.send();
 }
 
 #[derive(Debug, Deserialize)]
@@ -94,13 +93,11 @@ struct LineNotifier {
 }
 
 impl LineNotifier {
-    fn send(&self) {
+    async fn send(&self) {
         let line_notifier = LineNotify::new(&self.token);
-        let _ = async {
-            match line_notifier.set_message(&self.message).send().await {
-                Ok(_) => (),
-                Err(e) => panic!("Failed to send line message: {}", e),
-            }
-        };
+        match line_notifier.set_message(&self.message).send().await {
+            Ok(_) => (),
+            Err(e) => panic!("Failed to send line message: {}", e),
+        }
     }
 }
