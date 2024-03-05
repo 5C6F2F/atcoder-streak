@@ -55,6 +55,7 @@ dependencies = [
  "headless_chrome",
  "line_notify",
  "serde",
+ "tokio",
  "toml",
 ]
 
