@@ -10,7 +10,7 @@ extra_text = "Last AC: "
 date_format = "%Y-%m-%d"
 
 [line_notifier]
-token = "A2cwIAR1OBKpNHmTZe2ww993jWj3NqnMrSHvZ5tZZVA"
+token = ""
 message = """
 AtCoder Streakが更新されていません
 早く問題を解いてください"""
