@@ -44,13 +44,11 @@ struct Registerer {
 
 impl Registerer {
     fn times_to_string(&self) -> String {
-        let mut result = String::new();
-        for i in &self.notify_times {
-            result.push_str(&i.to_string());
-            result.push(' ');
-        }
-        result.pop();
-        result
+        self.notify_times
+            .iter()
+            .map(|time| time.to_string())
+            .collect::<Vec<String>>()
+            .join(" ")
     }
 }
 
