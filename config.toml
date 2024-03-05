@@ -12,7 +12,8 @@ date_format = "%Y-%m-%d"
 [line_notifier]
 token = ""
 message = """
-AtCoder Streakが更新されていません
+
+AtCoderのStreakが更新されていません
 早く問題を解いてください"""
 
 [registerer]
