@@ -5,7 +5,9 @@ use std::fs;
 fn main() {
     let config = Config::new();
     let registerer = &config.registerer;
-    let current_exe = std::env::current_exe().expect("Failed to get current exe path");
+    let mut current_exe = std::env::current_exe().expect("Failed to get current exe path");
+    current_exe.pop();
+    current_exe.push("atcoderstreak.exe");
 
     std::process::Command::new("pwsh")
         .arg("-Command")
