@@ -9,16 +9,16 @@ last_ac_selector = "#root > div > div.my-5.container > div > div.my-3.row > div:
 extra_text = "Last AC: "
 date_format = "%Y-%m-%d"
 
-[line_notifier]
+[discord_notifier]
 token = ""
-message = """
-
-AtCoderのStreakが更新されていません
-早く問題を解いてください"""
+channel_id = ""
+message = """AtCoderのStreakが更新されていません
+早く問題を解いてください
+"""
 
 [registerer]
 task_name = "AtCoderStreak"
-task_description = "AtCoderのStreakが更新されていない場合、定期的にLINEで通知します"
+task_description = "AtCoderのStreakが更新されていない場合、設定した時刻にDiscordで通知します"
 notify_times = [
     "18:00",
     "21:00",

@@ -1,7 +1,10 @@
-use headless_chrome::Browser;
-use line_notify::LineNotify;
+use headless_chrome::{Browser, LaunchOptionsBuilder};
 use serde::Deserialize;
-use std::{error::Error, fs};
+use serenity::{
+    all::{ChannelId, Context, CreateMessage, EventHandler, GatewayIntents, Ready},
+    async_trait, Client,
+};
+use std::{error::Error, fs, str::FromStr};
 
 #[tokio::main]
 async fn main() {
@@ -12,12 +15,12 @@ async fn main() {
     let config = Config::new();
     let load_last_ac = config.load_last_ac;
     let compare_dates = config.compare_dates;
-    let line_notifier = config.line_notifier;
+    let discord_notifier = config.discord_notifier;
 
     let last_ac = load_last_ac.load_last_ac().expect("Failed to load lastAC");
 
     if !compare_dates.is_streak_updated(last_ac) {
-        line_notifier.send().await;
+        discord_notifier.send().await;
     }
 }
 
@@ -25,7 +28,7 @@ async fn main() {
 struct Config {
     load_last_ac: LoadLastAC,
     compare_dates: CompareDates,
-    line_notifier: LineNotifier,
+    discord_notifier: DiscordNotifier,
 }
 
 impl Config {
@@ -36,8 +39,8 @@ impl Config {
         if config.load_last_ac.user_name.is_empty() {
             panic!("user name is empty");
         }
-        if config.line_notifier.token.is_empty() {
-            panic!("line notify token is empty");
+        if config.discord_notifier.token.is_empty() {
+            panic!("Discord API token is empty");
         }
 
         config
@@ -55,7 +58,7 @@ struct LoadLastAC {
 
 impl LoadLastAC {
     fn load_last_ac(&self) -> Result<String, Box<dyn Error>> {
-        let browser = Browser::default()?;
+        let browser = Browser::new(LaunchOptionsBuilder::default().build()?)?;
         let tab = browser.new_tab()?;
 
         tab.navigate_to(&self.address)?;
@@ -91,17 +94,47 @@ impl CompareDates {
 }
 
 #[derive(Debug, Deserialize)]
-struct LineNotifier {
+struct DiscordNotifier {
     token: String,
+    channel_id: String,
     message: String,
 }
 
-impl LineNotifier {
+impl DiscordNotifier {
     async fn send(&self) {
-        let line_notifier = LineNotify::new(&self.token);
-        match line_notifier.set_message(&self.message).send().await {
-            Ok(_) => (),
-            Err(e) => panic!("Failed to send line message: {}", e),
-        }
+        let handler = Handler {
+            channel_id: self.channel_id.clone(),
+            message: self.message.clone(),
+        };
+
+        let mut client = Client::builder(&self.token, GatewayIntents::empty())
+            .event_handler(handler)
+            .await
+            .expect("Failed to create client");
+
+        // 10秒後にclientをシャットダウン
+        let shard_manager = client.shard_manager.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+            shard_manager.shutdown_all().await;
+        });
+
+        client.start().await.expect("Failed to start event handler");
+    }
+}
+
+struct Handler {
+    channel_id: String,
+    message: String,
+}
+
+#[async_trait]
+impl EventHandler for Handler {
+    async fn ready(&self, ctx: Context, _ready: Ready) {
+        let channel_id = ChannelId::from_str(&self.channel_id).expect("Failed to parse channel id");
+        channel_id
+            .send_message(&ctx.http, CreateMessage::new().content(&self.message))
+            .await
+            .expect("Failed to send message");
     }
 }
