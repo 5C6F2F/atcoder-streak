@@ -12,12 +12,12 @@ async fn main() {
     let config = Config::new();
     let load_last_ac = config.load_last_ac;
     let compare_dates = config.compare_dates;
-    let line_notifier = config.line_notifier;
+    let discord_notifier = config.discord_notifier;
 
     let last_ac = load_last_ac.load_last_ac().expect("Failed to load lastAC");
 
     if !compare_dates.is_streak_updated(last_ac) {
-        line_notifier.send().await;
+        discord_notifier.send().await;
     }
 }
 
@@ -25,7 +25,7 @@ async fn main() {
 struct Config {
     load_last_ac: LoadLastAC,
     compare_dates: CompareDates,
-    line_notifier: LineNotifier,
+    discord_notifier: DiscordNotifier,
 }
 
 impl Config {
@@ -36,8 +36,8 @@ impl Config {
         if config.load_last_ac.user_name.is_empty() {
             panic!("user name is empty");
         }
-        if config.line_notifier.token.is_empty() {
-            panic!("line notify token is empty");
+        if config.discord_notifier.token.is_empty() {
+            panic!("Discord API token is empty");
         }
 
         config
@@ -91,12 +91,12 @@ impl CompareDates {
 }
 
 #[derive(Debug, Deserialize)]
-struct LineNotifier {
+struct DiscordNotifier {
     token: String,
     message: String,
 }
 
-impl LineNotifier {
+impl DiscordNotifier {
     async fn send(&self) {
         let line_notifier = LineNotify::new(&self.token);
         match line_notifier.set_message(&self.message).send().await {
